@@ -1,0 +1,11 @@
+# Fichiers système de macOS
+.DS_Store
+
+# Fichiers système de Windows
+Thumbs.db
+
+# Dossier de dépendances npm
+node_modules/
+
+# Fichier de variables secrètes
+.env
