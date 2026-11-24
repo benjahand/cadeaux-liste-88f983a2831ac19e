@@ -3,10 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liste noël</title>
+    <link rel="stylesheet" href="css/style.css">
+    <title>Liste de Noël</title>
     <script src="js/firebase-config.js" type="module"></script>
 </head>
 <body>
-    
+    <header class="entete">
+        <h1>🎄 Liste de Noël</h1>
+        <p>Qui es-tu ?</p>
+    </header>
+
+    <main class="contenu">
+        <section>
+            <ul class="liste-roles">
+                <li><button class="btn btn-famille" data-role="Maman">Maman</button></li>
+                <li><button class="btn btn-famille" data-role="Papa">Papa</button></li>
+                <li><button class="btn btn-famille" data-role="Soeur-ainee">Sœur ainée</button></li>
+                <li><button class="btn btn-famille" data-role="Soeur-cadette">Sœur cadette</button></li>
+                <li><button class="btn btn-famille" data-role="Copine">Copine</button></li>
+            </ul>
+        </section>
+
+        <section class="zone-createur">
+            <button class="btn btn-createur" data-role="createur">Créateur</button>
+        </section>
+    </main>
 </body>
 </html>

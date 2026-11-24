@@ -1,0 +1,113 @@
+/* ---------- Variables : les couleurs et tailles au même endroit ---------- */
+:root {
+  --couleur-fond: #fdf6ec;
+  --couleur-texte: #2b2b2b;
+  --couleur-principale: #b3202a;   /* rouge Noël */
+  --couleur-secondaire: #1f6b45;   /* vert sapin */
+  --rayon: 12px;
+  --espace: 16px;
+}
+
+/* ---------- Reset minimal ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--couleur-fond);
+  color: var(--couleur-texte);
+  line-height: 1.5;
+}
+
+/* ---------- En-tête ---------- */
+.entete {
+  text-align: center;
+  padding: calc(var(--espace) * 2) var(--espace) var(--espace);
+}
+
+.entete h1 {
+  margin: 0 0 8px;
+  font-size: 1.8rem;
+}
+
+.entete p {
+  margin: 0;
+  opacity: 0.8;
+}
+
+/* ---------- Contenu ---------- */
+.contenu {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: var(--espace);
+}
+
+/* ---------- Liste des prénoms (Flexbox en colonne) ---------- */
+.liste-roles {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ---------- Boutons ---------- */
+.btn {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px var(--espace);
+  font-size: 1.1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--rayon);
+  cursor: pointer;
+  transition: transform 0.1s, opacity 0.2s;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn:focus-visible {
+  outline: 3px solid var(--couleur-texte);
+  outline-offset: 2px;
+}
+
+.btn-famille {
+  background: var(--couleur-secondaire);
+  color: #fff;
+}
+
+.btn-createur {
+  background: transparent;
+  color: var(--couleur-principale);
+  border: 2px solid var(--couleur-principale);
+}
+
+/* ---------- Séparation visuelle du bouton Créateur ---------- */
+.zone-createur {
+  margin-top: calc(var(--espace) * 2);
+  padding-top: var(--espace);
+  border-top: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+/* ---------- Écrans plus larges (ordinateur / tablette) ---------- */
+@media (min-width: 768px) {
+  .entete h1 {
+    font-size: 2.4rem;
+  }
+
+  .liste-roles {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .btn:hover {
+    opacity: 0.9;
+  }
+}
