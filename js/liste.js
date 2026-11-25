@@ -3,7 +3,7 @@ import { libelle } from "./roles.js";
 import { auth } from "./firebase-config.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-auth.js";
 import {
-  ajouterIdee, ecouterIdees,
+  ajouterIdee, modifierIdee, supprimerIdee, ecouterIdees,
   ecouterTout, ecouterReservations, reserver, annulerReservation,
   ajouterSurprise, supprimerCadeau
 } from "./db.js";
@@ -13,8 +13,9 @@ const ul = document.getElementById("liste-idees");
 const message = document.getElementById("message");
 const statut = document.getElementById("statut");
 
-// État local : les deux écoutes mettent à jour, afficher() redessine
+// État local : les écoutes le mettent à jour, afficher() redessine
 const etat = { cadeaux: [], reservations: {} };
+let idEnEdition = null; // null = mode ajout ; sinon id de l'idée modifiée
 
 function lienSur(valeur) {
   try {
@@ -68,11 +69,10 @@ function creerCarte(idee) {
     li.append(a);
   }
 
-  // Tout ce qui suit n'existe jamais côté Créateur
-  if (estFamille) {
-    const actions = document.createElement("div");
-    actions.className = "actions";
+  const actions = document.createElement("div");
+  actions.className = "actions";
 
+  if (estFamille) {
     if (!reservePar) {
       actions.append(creerBouton("Réserver", "reserver", idee.id, "btn-famille"));
     } else if (reservePar === role) {
@@ -89,8 +89,15 @@ function creerCarte(idee) {
     if (idee.surprise && idee.ajoutePar === role) {
       actions.append(creerBouton("Supprimer", "supprimer", idee.id, "btn-createur"));
     }
-    li.append(actions);
+  } else {
+    // Créateur : jamais de statut de réservation
+    actions.append(
+      creerBouton("Modifier", "modifier", idee.id, "btn-famille"),
+      creerBouton("Supprimer", "supprimer-idee", idee.id, "btn-createur")
+    );
   }
+
+  if (actions.children.length) li.append(actions);
   return li;
 }
 
@@ -104,30 +111,83 @@ function afficher() {
 // ---------- Mode Créateur ----------
 function demarrerCreateur() {
   const form = document.getElementById("form-idee");
+  const champTitre = document.getElementById("idee-titre");
+  const champDescription = document.getElementById("idee-description");
+  const champLien = document.getElementById("idee-lien");
+  const boutonEnvoi = form.querySelector("button[type=submit]");
   form.hidden = false;
+
+  const boutonAnnuler = document.createElement("button");
+  boutonAnnuler.type = "button";
+  boutonAnnuler.className = "btn btn-createur";
+  boutonAnnuler.textContent = "Annuler la modification";
+  boutonAnnuler.hidden = true;
+  boutonEnvoi.after(boutonAnnuler);
+
+  function sortirEdition() {
+    idEnEdition = null;
+    form.reset();
+    boutonEnvoi.textContent = "Ajouter";
+    boutonAnnuler.hidden = true;
+  }
 
   ecouterIdees(
     (liste) => { etat.cadeaux = liste; afficher(); },
     (e) => { console.error(e.code, e.message); message.textContent = "Impossible de charger les idées."; }
   );
 
+  ul.addEventListener("click", async (e) => {
+    const bouton = e.target.closest("button[data-action]");
+    if (!bouton) return;
+    const { action, id } = bouton.dataset;
+
+    if (action === "modifier") {
+      const idee = etat.cadeaux.find((c) => c.id === id);
+      if (!idee) return;
+      idEnEdition = id;
+      champTitre.value = idee.titre;
+      champDescription.value = idee.description ?? "";
+      champLien.value = idee.lien ?? "";
+      boutonEnvoi.textContent = "Enregistrer";
+      boutonAnnuler.hidden = false;
+      form.scrollIntoView({ behavior: "smooth" });
+      champTitre.focus();
+    }
+
+    if (action === "supprimer-idee") {
+      if (!confirm("Supprimer cette idée définitivement ?")) return;
+      bouton.disabled = true;
+      try {
+        await supprimerIdee(id);
+        if (idEnEdition === id) sortirEdition();
+      } catch (err) {
+        console.error(err.code, err.message);
+        message.textContent = "Suppression impossible, réessaie.";
+        bouton.disabled = false;
+      }
+    }
+  });
+
+  boutonAnnuler.addEventListener("click", sortirEdition);
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const bouton = form.querySelector("button[type=submit]");
-    bouton.disabled = true;
+    boutonEnvoi.disabled = true;
     message.textContent = "";
+    const donnees = {
+      titre: champTitre.value.trim(),
+      description: champDescription.value.trim(),
+      lien: champLien.value.trim(),
+    };
     try {
-      await ajouterIdee({
-        titre: document.getElementById("idee-titre").value.trim(),
-        description: document.getElementById("idee-description").value.trim(),
-        lien: document.getElementById("idee-lien").value.trim(),
-      });
-      form.reset();
+      if (idEnEdition) await modifierIdee(idEnEdition, donnees);
+      else await ajouterIdee(donnees);
+      sortirEdition();
     } catch (err) {
       console.error(err.code, err.message);
-      message.textContent = "Ajout impossible, réessaie.";
+      message.textContent = "Enregistrement impossible, réessaie.";
     } finally {
-      bouton.disabled = false;
+      boutonEnvoi.disabled = false;
     }
   });
 }
@@ -142,7 +202,6 @@ function demarrerFamille() {
   ecouterTout((liste) => { etat.cadeaux = liste; afficher(); }, erreurChargement);
   ecouterReservations((dico) => { etat.reservations = dico; afficher(); }, erreurChargement);
 
-  // Un seul écouteur pour tous les boutons (délégation)
   ul.addEventListener("click", async (e) => {
     const bouton = e.target.closest("button[data-action]");
     if (!bouton) return;
@@ -160,7 +219,6 @@ function demarrerFamille() {
         : "Action impossible, réessaie.";
       bouton.disabled = false;
     }
-    // En cas de succès, onSnapshot redessine la liste tout seul
   });
 
   const form = document.getElementById("form-surprise");

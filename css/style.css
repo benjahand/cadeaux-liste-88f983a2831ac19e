@@ -24,7 +24,6 @@ body {
   line-height: 1.5;
 }
 
-/* Respecte hidden même si une classe définit display */
 [hidden] {
   display: none !important;
 }
@@ -100,6 +99,13 @@ body {
   border: 2px solid var(--couleur-principale);
 }
 
+.btn-petit {
+  width: auto;
+  min-height: 44px;
+  padding: 8px 16px;
+  font-size: 1rem;
+}
+
 .zone-createur {
   margin-top: calc(var(--espace) * 2);
   padding-top: var(--espace);
@@ -140,12 +146,21 @@ form .btn {
   margin-top: 8px;
 }
 
+form .btn.btn-createur {
+  margin-top: 0;
+}
+
 #erreur,
-#message {
+#message,
+#statut {
   min-height: 1.5em;
   margin: 0;
   color: var(--couleur-principale);
   font-size: 0.95rem;
+}
+
+#statut {
+  margin-top: 8px;
 }
 
 /* ---------- Liste des idées ---------- */
@@ -170,15 +185,30 @@ form .btn {
   opacity: 0.75;
 }
 
-/* Idée réservée (étape 11) */
 #liste-idees li.reserve {
   opacity: 0.5;
   background: #eee;
 }
 
+.badge-surprise {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--couleur-secondaire);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
 /* ---------- Lien vers le produit ---------- */
 .lien-produit {
-  display: inline-block;
+  display: block;
   margin-top: 8px;
   color: var(--couleur-principale);
   font-weight: 600;
@@ -192,6 +222,24 @@ form .btn {
 .lien-produit:focus-visible {
   outline: 3px solid var(--couleur-texte);
   outline-offset: 2px;
+}
+
+/* ---------- Idée surprise (famille) ---------- */
+#form-surprise {
+  margin-top: calc(var(--espace) * 2);
+  padding-top: var(--espace);
+  border-top: 1px solid var(--couleur-bordure);
+}
+
+#form-surprise h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.aide {
+  margin: 0;
+  opacity: 0.7;
+  font-size: 0.9rem;
 }
 
 /* ---------- Bouton "Changer de profil" ---------- */
@@ -218,41 +266,3 @@ form .btn {
     opacity: 0.9;
   }
 }
-
-.badge-surprise {
-  display: block;
-  margin-bottom: 4px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--couleur-secondaire);
-}
-
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  margin-top: 10px;
-}
-
-.btn-petit {
-  width: auto;
-  min-height: 44px;
-  padding: 8px 16px;
-  font-size: 1rem;
-}
-
-#statut {
-  min-height: 1.5em;
-  margin: 8px 0 0;
-  color: var(--couleur-principale);
-}
-
-#form-surprise {
-  margin-top: calc(var(--espace) * 2);
-  padding-top: var(--espace);
-  border-top: 1px solid var(--couleur-bordure);
-}
-
-#form-surprise h2 { margin: 0; font-size: 1.2rem; }
-.aide { margin: 0; opacity: 0.7; font-size: 0.9rem; }

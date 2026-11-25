@@ -1,6 +1,6 @@
 import { db } from "./firebase-config.js";
 import {
-  collection, addDoc, setDoc, deleteDoc, doc,
+  collection, addDoc, setDoc, updateDoc, deleteDoc, doc,
   query, where, onSnapshot, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-firestore.js";
 
@@ -15,6 +15,16 @@ export function ajouterIdee({ titre, description, lien }) {
     ajoutePar: "Createur",
     creeLe: serverTimestamp(),
   });
+}
+
+// updateDoc ne modifie que ces champs : surprise et ajoutePar restent intacts
+export function modifierIdee(id, { titre, description, lien }) {
+  return updateDoc(doc(db, "cadeaux", id), { titre, description, lien });
+}
+
+// Ne touche pas à "reservations" : le Créateur n'y a pas accès
+export function supprimerIdee(id) {
+  return deleteDoc(doc(db, "cadeaux", id));
 }
 
 // Le filtre where garantit que les surprises n'arrivent jamais chez le Créateur
@@ -69,6 +79,6 @@ export function ajouterSurprise({ titre, description, lien }, role) {
 export function supprimerCadeau(idCadeau) {
   return Promise.all([
     deleteDoc(doc(db, "cadeaux", idCadeau)),
-    deleteDoc(doc(db, "reservations", idCadeau)), // nettoie une éventuelle réservation
+    deleteDoc(doc(db, "reservations", idCadeau)),
   ]);
 }
