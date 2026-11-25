@@ -7,8 +7,30 @@
     <title>Liste de Noël</title>
 </head>
 <body>
-    <h1 id="titre">Chargement…</h1>
-    <button id="btn-changer">Changer de profil</button>
+    <header class="entete">
+        <h1 id="titre">Chargement…</h1>
+    </header>
+
+    <main class="contenu">
+        <form id="form-idee" hidden>
+            <label for="idee-titre">Idée cadeau</label>
+            <input id="idee-titre" required maxlength="100" placeholder="Ex : Casque audio">
+
+            <label for="idee-description">Description</label>
+            <input id="idee-description" maxlength="300" placeholder="Taille, couleur…">
+
+            <label for="idee-lien">Lien</label>
+            <input id="idee-lien" type="url" placeholder="https://...">
+
+            <button class="btn btn-famille" type="submit">Ajouter</button>
+            <p id="message" role="alert"></p>
+        </form>
+
+        <ul id="liste-idees"></ul>
+
+        <button id="btn-changer" class="btn btn-createur">Changer de profil</button>
+    </main>
+
     <script src="js/liste.js" type="module"></script>
 </body>
 </html>

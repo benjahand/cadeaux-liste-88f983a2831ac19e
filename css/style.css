@@ -1,9 +1,10 @@
-/* ---------- Variables : les couleurs et tailles au même endroit ---------- */
+/* ---------- Variables ---------- */
 :root {
   --couleur-fond: #fdf6ec;
   --couleur-texte: #2b2b2b;
-  --couleur-principale: #b3202a;   /* rouge Noël */
-  --couleur-secondaire: #1f6b45;   /* vert sapin */
+  --couleur-principale: #b3202a;
+  --couleur-secondaire: #1f6b45;
+  --couleur-bordure: rgba(0, 0, 0, 0.15);
   --rayon: 12px;
   --espace: 16px;
 }
@@ -23,7 +24,12 @@ body {
   line-height: 1.5;
 }
 
-/* ---------- En-tête ---------- */
+/* Respecte hidden même si une classe définit display */
+[hidden] {
+  display: none !important;
+}
+
+/* ---------- En-tête et contenu ---------- */
 .entete {
   text-align: center;
   padding: calc(var(--espace) * 2) var(--espace) var(--espace);
@@ -39,14 +45,13 @@ body {
   opacity: 0.8;
 }
 
-/* ---------- Contenu ---------- */
 .contenu {
   max-width: 480px;
   margin: 0 auto;
   padding: var(--espace);
 }
 
-/* ---------- Liste des prénoms (Flexbox en colonne) ---------- */
+/* ---------- Liste des profils (accueil) ---------- */
 .liste-roles {
   list-style: none;
   margin: 0;
@@ -63,6 +68,7 @@ body {
   padding: 12px var(--espace);
   font-size: 1.1rem;
   font-weight: 600;
+  font-family: inherit;
   border: none;
   border-radius: var(--rayon);
   cursor: pointer;
@@ -78,6 +84,11 @@ body {
   outline-offset: 2px;
 }
 
+.btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
 .btn-famille {
   background: var(--couleur-secondaire);
   color: #fff;
@@ -89,17 +100,113 @@ body {
   border: 2px solid var(--couleur-principale);
 }
 
-/* ---------- Séparation visuelle du bouton Créateur ---------- */
 .zone-createur {
   margin-top: calc(var(--espace) * 2);
   padding-top: var(--espace);
-  border-top: 1px solid rgba(0, 0, 0, 0.15);
+  border-top: 1px solid var(--couleur-bordure);
 }
 
-/* ---------- Écrans plus larges (ordinateur / tablette) ---------- */
+/* ---------- Formulaires ---------- */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: var(--espace);
+}
+
+label {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+input {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  font-size: 1rem; /* 16px : évite le zoom automatique sur iPhone */
+  font-family: inherit;
+  border: 1px solid var(--couleur-bordure);
+  border-radius: var(--rayon);
+  background: #fff;
+  color: inherit;
+}
+
+input:focus-visible {
+  outline: 3px solid var(--couleur-secondaire);
+  outline-offset: 1px;
+}
+
+form .btn {
+  margin-top: 8px;
+}
+
+#erreur,
+#message {
+  min-height: 1.5em;
+  margin: 0;
+  color: var(--couleur-principale);
+  font-size: 0.95rem;
+}
+
+/* ---------- Liste des idées ---------- */
+#liste-idees {
+  list-style: none;
+  margin: var(--espace) 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+#liste-idees li {
+  padding: 12px;
+  background: #fff;
+  border: 1px solid var(--couleur-bordure);
+  border-radius: var(--rayon);
+  overflow-wrap: anywhere;
+}
+
+#liste-idees small {
+  opacity: 0.75;
+}
+
+/* Idée réservée (étape 11) */
+#liste-idees li.reserve {
+  opacity: 0.5;
+  background: #eee;
+}
+
+/* ---------- Lien vers le produit ---------- */
+.lien-produit {
+  display: inline-block;
+  margin-top: 8px;
+  color: var(--couleur-principale);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.lien-produit:hover {
+  text-decoration: underline;
+}
+
+.lien-produit:focus-visible {
+  outline: 3px solid var(--couleur-texte);
+  outline-offset: 2px;
+}
+
+/* ---------- Bouton "Changer de profil" ---------- */
+#btn-changer {
+  margin-top: calc(var(--espace) * 2);
+}
+
+/* ---------- Écrans plus larges ---------- */
 @media (min-width: 768px) {
   .entete h1 {
     font-size: 2.4rem;
+  }
+
+  .contenu {
+    max-width: 560px;
   }
 
   .liste-roles {
