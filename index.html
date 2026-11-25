@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/style.css">
     <title>Liste de Noël</title>
-    <script src="js/firebase-config.js" type="module"></script>
     <script src="js/accueil.js" type="module"></script>
 </head>
 <body>
@@ -28,6 +27,15 @@
         <section class="zone-createur">
             <button class="btn btn-createur" data-role="Createur">Créateur</button>
         </section>
+
+        <form id="form-createur" hidden>
+            <label for="email">E-mail</label>
+            <input id="email" type="email" autocomplete="username" required>
+            <label for="mdp">Mot de passe</label>
+            <input id="mdp" type="password" autocomplete="current-password" required>
+            <button class="btn btn-createur" type="submit">Se connecter</button>
+            <p id="erreur" role="alert"></p>
+        </form>
     </main>
 </body>
 </html>
