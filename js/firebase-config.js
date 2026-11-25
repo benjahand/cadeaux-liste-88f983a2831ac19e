@@ -3,12 +3,12 @@ import { getFirestore } from "https://www.gstatic.com/firebasejs/13.3.0/firebase
 import { initializeAuth, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-auth.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBdBK4-dXVcJcEq1309SQw2cG6dIeTThDo",
-  authDomain: "noel-liste-e9b13.firebaseapp.com",
-  projectId: "noel-liste-e9b13",
-  storageBucket: "noel-liste-e9b13.firebasestorage.app",
-  messagingSenderId: "166461130138",
-  appId: "1:166461130138:web:dfca365ba3b3bce2032623"
+  apiKey: "AIzaSyA4gj-2JbMShzoPtCECA52PQMhns2y__VY",
+  authDomain: "cadeaux-liste.firebaseapp.com",
+  projectId: "cadeaux-liste",
+  storageBucket: "cadeaux-liste.firebasestorage.app",
+  messagingSenderId: "665217305405",
+  appId: "1:665217305405:web:33263f425de46c0780d354"
 };
 
 const app = initializeApp(firebaseConfig);
