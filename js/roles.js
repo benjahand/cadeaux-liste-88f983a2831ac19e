@@ -1,9 +1,9 @@
 export const LIBELLES = {
   "Maman": "Maman",
   "Papa": "Papa",
-  "Soeur-ainee": "Sœur ainée",
-  "Soeur-cadette": "Sœur cadette",
-  "Copine": "Copine",
+  "Soeur-ainee": "Marilou",
+  "Soeur-cadette": "Elisa",
+  "Copine": "Margot",
   "Createur": "Créateur",
 };
 
