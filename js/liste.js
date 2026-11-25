@@ -249,7 +249,7 @@ if (!role) {
   window.location.replace("index.html");
 } else {
   document.getElementById("titre").textContent =
-    role === "Createur" ? "Espace créateur" : `Bonjour ${libelle(role)}`;
+    role === "Createur" ? "Ma liste" : `Bonjour ${libelle(role)}`;
 
   onAuthStateChanged(auth, (user) => {
     if (role === "Createur" && !user) {
