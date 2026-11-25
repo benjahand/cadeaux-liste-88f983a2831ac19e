@@ -12,21 +12,33 @@
     </header>
 
     <main class="contenu">
+        <!-- Créateur : ajouter une idée -->
         <form id="form-idee" hidden>
             <label for="idee-titre">Idée cadeau</label>
             <input id="idee-titre" required maxlength="100" placeholder="Ex : Casque audio">
-
             <label for="idee-description">Description</label>
             <input id="idee-description" maxlength="300" placeholder="Taille, couleur…">
-
             <label for="idee-lien">Lien</label>
             <input id="idee-lien" type="url" placeholder="https://...">
-
             <button class="btn btn-famille" type="submit">Ajouter</button>
             <p id="message" role="alert"></p>
         </form>
 
+        <p id="statut" role="alert"></p>
         <ul id="liste-idees"></ul>
+
+        <!-- Famille : ajouter une idée surprise -->
+        <form id="form-surprise" hidden>
+            <h2>🎁 Ajouter une idée surprise</h2>
+            <p class="aide">Visible de toute la famille, sauf du Créateur.</p>
+            <label for="surprise-titre">Idée</label>
+            <input id="surprise-titre" required maxlength="100">
+            <label for="surprise-description">Description</label>
+            <input id="surprise-description" maxlength="300">
+            <label for="surprise-lien">Lien</label>
+            <input id="surprise-lien" type="url" placeholder="https://...">
+            <button class="btn btn-famille" type="submit">Ajouter la surprise</button>
+        </form>
 
         <button id="btn-changer" class="btn btn-createur">Changer de profil</button>
     </main>

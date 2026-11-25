@@ -2,13 +2,20 @@ import { lireRole, effacerRole } from "./session.js";
 import { libelle } from "./roles.js";
 import { auth } from "./firebase-config.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-auth.js";
-import { ajouterIdee, ecouterIdees } from "./db.js";
+import {
+  ajouterIdee, ecouterIdees,
+  ecouterTout, ecouterReservations, reserver, annulerReservation,
+  ajouterSurprise, supprimerCadeau
+} from "./db.js";
 
 const role = lireRole();
 const ul = document.getElementById("liste-idees");
 const message = document.getElementById("message");
+const statut = document.getElementById("statut");
 
-// N'accepte que http(s) : bloque "javascript:..."
+// État local : les deux écoutes mettent à jour, afficher() redessine
+const etat = { cadeaux: [], reservations: {} };
+
 function lienSur(valeur) {
   try {
     const url = new URL(valeur);
@@ -18,45 +25,91 @@ function lienSur(valeur) {
   }
 }
 
-function afficherIdees(idees) {
-  ul.replaceChildren();
-  idees
-    .sort((a, b) => (a.creeLe?.seconds ?? 0) - (b.creeLe?.seconds ?? 0))
-    .forEach((idee) => {
-      const li = document.createElement("li");
-
-      const titre = document.createElement("strong");
-      titre.textContent = idee.titre;
-      li.append(titre);
-
-      if (idee.description) {
-        const desc = document.createElement("small");
-        desc.textContent = ` – ${idee.description}`;
-        li.append(desc);
-      }
-
-      const href = lienSur(idee.lien);
-      if (href) {
-        const lien = document.createElement("a");
-        lien.className = "lien-produit";
-        lien.href = href;
-        lien.target = "_blank";
-        lien.rel = "noopener noreferrer";
-        lien.textContent = `Voir sur ${new URL(href).hostname.replace(/^www\./, "")} →`;
-        li.append(lien);
-      }
-      ul.append(li);
-    });
+function creerBouton(texte, action, id, classe) {
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = `btn btn-petit ${classe}`;
+  b.textContent = texte;
+  b.dataset.action = action;
+  b.dataset.id = id;
+  return b;
 }
 
+function creerCarte(idee) {
+  const li = document.createElement("li");
+  const estFamille = role !== "Createur";
+  const reservePar = etat.reservations[idee.id];
+
+  if (idee.surprise) {
+    const badge = document.createElement("span");
+    badge.className = "badge-surprise";
+    badge.textContent = `🎁 Surprise de ${libelle(idee.ajoutePar)}`;
+    li.append(badge);
+  }
+
+  const titre = document.createElement("strong");
+  titre.textContent = idee.titre;
+  li.append(titre);
+
+  if (idee.description) {
+    const desc = document.createElement("small");
+    desc.textContent = ` – ${idee.description}`;
+    li.append(desc);
+  }
+
+  const href = lienSur(idee.lien);
+  if (href) {
+    const a = document.createElement("a");
+    a.className = "lien-produit";
+    a.href = href;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.textContent = `Voir sur ${new URL(href).hostname.replace(/^www\./, "")} →`;
+    li.append(a);
+  }
+
+  // Tout ce qui suit n'existe jamais côté Créateur
+  if (estFamille) {
+    const actions = document.createElement("div");
+    actions.className = "actions";
+
+    if (!reservePar) {
+      actions.append(creerBouton("Réserver", "reserver", idee.id, "btn-famille"));
+    } else if (reservePar === role) {
+      const info = document.createElement("span");
+      info.textContent = "✅ Réservé par toi";
+      actions.append(info, creerBouton("Annuler", "annuler", idee.id, "btn-createur"));
+    } else {
+      li.classList.add("reserve");
+      const info = document.createElement("span");
+      info.textContent = `🔒 Réservé par ${libelle(reservePar)}`;
+      actions.append(info);
+    }
+
+    if (idee.surprise && idee.ajoutePar === role) {
+      actions.append(creerBouton("Supprimer", "supprimer", idee.id, "btn-createur"));
+    }
+    li.append(actions);
+  }
+  return li;
+}
+
+function afficher() {
+  ul.replaceChildren();
+  [...etat.cadeaux]
+    .sort((a, b) => (a.creeLe?.seconds ?? 0) - (b.creeLe?.seconds ?? 0))
+    .forEach((idee) => ul.append(creerCarte(idee)));
+}
+
+// ---------- Mode Créateur ----------
 function demarrerCreateur() {
   const form = document.getElementById("form-idee");
   form.hidden = false;
 
-  ecouterIdees(afficherIdees, (e) => {
-    console.error(e.code, e.message);
-    message.textContent = "Impossible de charger les idées.";
-  });
+  ecouterIdees(
+    (liste) => { etat.cadeaux = liste; afficher(); },
+    (e) => { console.error(e.code, e.message); message.textContent = "Impossible de charger les idées."; }
+  );
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -79,6 +132,61 @@ function demarrerCreateur() {
   });
 }
 
+// ---------- Mode Famille ----------
+function demarrerFamille() {
+  const erreurChargement = (e) => {
+    console.error(e.code, e.message);
+    statut.textContent = "Impossible de charger la liste.";
+  };
+
+  ecouterTout((liste) => { etat.cadeaux = liste; afficher(); }, erreurChargement);
+  ecouterReservations((dico) => { etat.reservations = dico; afficher(); }, erreurChargement);
+
+  // Un seul écouteur pour tous les boutons (délégation)
+  ul.addEventListener("click", async (e) => {
+    const bouton = e.target.closest("button[data-action]");
+    if (!bouton) return;
+    const { action, id } = bouton.dataset;
+    bouton.disabled = true;
+    statut.textContent = "";
+    try {
+      if (action === "reserver") await reserver(id, role);
+      if (action === "annuler") await annulerReservation(id);
+      if (action === "supprimer") await supprimerCadeau(id);
+    } catch (err) {
+      console.error(err.code, err.message);
+      statut.textContent = action === "reserver"
+        ? "Quelqu'un vient de le réserver."
+        : "Action impossible, réessaie.";
+      bouton.disabled = false;
+    }
+    // En cas de succès, onSnapshot redessine la liste tout seul
+  });
+
+  const form = document.getElementById("form-surprise");
+  form.hidden = false;
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const bouton = form.querySelector("button[type=submit]");
+    bouton.disabled = true;
+    statut.textContent = "";
+    try {
+      await ajouterSurprise({
+        titre: document.getElementById("surprise-titre").value.trim(),
+        description: document.getElementById("surprise-description").value.trim(),
+        lien: document.getElementById("surprise-lien").value.trim(),
+      }, role);
+      form.reset();
+    } catch (err) {
+      console.error(err.code, err.message);
+      statut.textContent = "Ajout impossible, réessaie.";
+    } finally {
+      bouton.disabled = false;
+    }
+  });
+}
+
+// ---------- Démarrage ----------
 if (!role) {
   window.location.replace("index.html");
 } else {
@@ -92,9 +200,8 @@ if (!role) {
     }
   });
 
-  if (role === "Createur") {
-    demarrerCreateur();
-  }
+  if (role === "Createur") demarrerCreateur();
+  else demarrerFamille();
 }
 
 document.getElementById("btn-changer").addEventListener("click", async () => {
