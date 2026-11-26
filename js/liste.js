@@ -1,6 +1,7 @@
 import { lireRole, effacerRole } from "./session.js";
 import { libelle, EMAIL_FAMILLE } from "./roles.js";
 import { auth } from "./firebase-config.js";
+import { lienSur, liensDe, creerEditeurLiens } from "./liens.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-auth.js";
 import {
   ajouterIdee, modifierIdee, supprimerIdee, ecouterIdees,
@@ -16,15 +17,6 @@ const statut = document.getElementById("statut");
 // État local : les écoutes le mettent à jour, afficher() redessine
 const etat = { cadeaux: [], reservations: {} };
 let idEnEdition = null; // null = mode ajout ; sinon id de l'idée modifiée
-
-function lienSur(valeur) {
-  try {
-    const url = new URL(valeur);
-    return url.protocol === "https:" || url.protocol === "http:" ? url.href : null;
-  } catch {
-    return null;
-  }
-}
 
 function creerBouton(texte, action, id, classe) {
   const b = document.createElement("button");
@@ -48,25 +40,40 @@ function creerCarte(idee) {
     li.append(badge);
   }
 
-  const titre = document.createElement("strong");
+  // Ligne 1 : titre
+  const titre = document.createElement("div");
+  titre.className = "ligne-titre";
   titre.textContent = idee.titre;
+  titre.title = idee.titre;
   li.append(titre);
 
+  // Ligne 2 : description
   if (idee.description) {
-    const desc = document.createElement("small");
-    desc.textContent = ` – ${idee.description}`;
+    const desc = document.createElement("div");
+    desc.className = "ligne-description";
+    desc.textContent = idee.description;
+    desc.title = idee.description;
     li.append(desc);
   }
 
-  const href = lienSur(idee.lien);
-  if (href) {
-    const a = document.createElement("a");
-    a.className = "lien-produit";
-    a.href = href;
-    a.target = "_blank";
-    a.rel = "noopener noreferrer";
-    a.textContent = `Voir sur ${new URL(href).hostname.replace(/^www\./, "")} →`;
-    li.append(a);
+  // Ligne 3 : liens côte à côte
+  const hrefs = liensDe(idee).map(lienSur).filter(Boolean);
+  if (hrefs.length) {
+    const ligneLiens = document.createElement("div");
+    ligneLiens.className = "ligne-liens";
+    hrefs.forEach((href, i) => {
+      const a = document.createElement("a");
+      a.className = "chip-lien";
+      a.href = href;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.title = href;
+      a.textContent = hrefs.length === 1
+        ? `🔗 ${new URL(href).hostname.replace(/^www\./, "")}`
+        : `🔗 Lien ${i + 1}`;
+      ligneLiens.append(a);
+    });
+    li.append(ligneLiens);
   }
 
   const actions = document.createElement("div");
@@ -90,7 +97,6 @@ function creerCarte(idee) {
       actions.append(creerBouton("Supprimer", "supprimer", idee.id, "btn-createur"));
     }
   } else {
-    // Créateur : jamais de statut de réservation
     actions.append(
       creerBouton("Modifier", "modifier", idee.id, "btn-famille"),
       creerBouton("Supprimer", "supprimer-idee", idee.id, "btn-createur")
@@ -113,7 +119,10 @@ function demarrerCreateur() {
   const form = document.getElementById("form-idee");
   const champTitre = document.getElementById("idee-titre");
   const champDescription = document.getElementById("idee-description");
-  const champLien = document.getElementById("idee-lien");
+  const editeur = creerEditeurLiens(
+    document.getElementById("liens-conteneur"),
+    document.getElementById("btn-ajout-lien")
+  );
   const boutonEnvoi = form.querySelector("button[type=submit]");
   form.hidden = false;
 
@@ -127,6 +136,7 @@ function demarrerCreateur() {
   function sortirEdition() {
     idEnEdition = null;
     form.reset();
+    editeur.vider();
     boutonEnvoi.textContent = "Ajouter";
     boutonAnnuler.hidden = true;
   }
@@ -147,7 +157,7 @@ function demarrerCreateur() {
       idEnEdition = id;
       champTitre.value = idee.titre;
       champDescription.value = idee.description ?? "";
-      champLien.value = idee.lien ?? "";
+      editeur.remplir(liensDe(idee));
       boutonEnvoi.textContent = "Enregistrer";
       boutonAnnuler.hidden = false;
       form.scrollIntoView({ behavior: "smooth" });
@@ -177,7 +187,7 @@ function demarrerCreateur() {
     const donnees = {
       titre: champTitre.value.trim(),
       description: champDescription.value.trim(),
-      lien: champLien.value.trim(),
+      liens: editeur.lire(),
     };
     try {
       if (idEnEdition) await modifierIdee(idEnEdition, donnees);
@@ -221,7 +231,10 @@ function demarrerFamille() {
     }
   });
 
-  const form = document.getElementById("form-surprise");
+  const editeur = creerEditeurLiens(
+    document.getElementById("liens-conteneur-surprise"),
+    document.getElementById("btn-ajout-lien-surprise")
+  );
   form.hidden = false;
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -232,9 +245,10 @@ function demarrerFamille() {
       await ajouterSurprise({
         titre: document.getElementById("surprise-titre").value.trim(),
         description: document.getElementById("surprise-description").value.trim(),
-        lien: document.getElementById("surprise-lien").value.trim(),
+        liens: editeur.lire(),
       }, role);
       form.reset();
+      editeur.vider();
     } catch (err) {
       console.error(err.code, err.message);
       statut.textContent = "Ajout impossible, réessaie.";

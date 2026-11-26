@@ -8,18 +8,17 @@ const cadeauxRef = collection(db, "cadeaux");
 const reservationsRef = collection(db, "reservations");
 
 // ---------- Créateur ----------
-export function ajouterIdee({ titre, description, lien }) {
+export function ajouterIdee({ titre, description, liens }) {
   return addDoc(cadeauxRef, {
-    titre, description, lien,
+    titre, description, liens,
     surprise: false,
     ajoutePar: "Createur",
     creeLe: serverTimestamp(),
   });
 }
 
-// updateDoc ne modifie que ces champs : surprise et ajoutePar restent intacts
-export function modifierIdee(id, { titre, description, lien }) {
-  return updateDoc(doc(db, "cadeaux", id), { titre, description, lien });
+export function modifierIdee(id, { titre, description, liens }) {
+  return updateDoc(doc(db, "cadeaux", id), { titre, description, liens });
 }
 
 // Ne touche pas à "reservations" : le Créateur n'y a pas accès
@@ -67,9 +66,9 @@ export function annulerReservation(idCadeau) {
   return deleteDoc(doc(db, "reservations", idCadeau));
 }
 
-export function ajouterSurprise({ titre, description, lien }, role) {
+export function ajouterSurprise({ titre, description, liens }, role) {
   return addDoc(cadeauxRef, {
-    titre, description, lien,
+    titre, description, liens,
     surprise: true,
     ajoutePar: role,
     creeLe: serverTimestamp(),

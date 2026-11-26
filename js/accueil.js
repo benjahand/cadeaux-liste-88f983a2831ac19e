@@ -16,6 +16,15 @@ const boutonCode = formCode.querySelector("button[type=submit]");
 
 let profilChoisi = null; // prénom en attente de validation du code
 
+// Seul le bouton choisi change d'apparence
+function marquer(boutonChoisi) {
+  document.querySelectorAll("button[data-role]").forEach((b) => {
+    const actif = b === boutonChoisi;
+    b.classList.toggle("selectionne", actif);
+    b.setAttribute("aria-pressed", String(actif));
+  });
+}
+
 // Un rôle invalide (session Firebase absente) est effacé par liste.js : pas de boucle
 if (lireRole()) {
   window.location.replace("liste.html");
@@ -25,6 +34,7 @@ document.addEventListener("click", async (event) => {
   const bouton = event.target.closest("button[data-role]");
   if (!bouton) return;
   const role = bouton.dataset.role;
+  marquer(bouton);
 
   if (role === "Createur") {
     formCode.hidden = true;

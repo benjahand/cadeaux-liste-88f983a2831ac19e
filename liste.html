@@ -18,8 +18,11 @@
             <input id="idee-titre" required maxlength="100" placeholder="Ex : Casque audio">
             <label for="idee-description">Description</label>
             <input id="idee-description" maxlength="300" placeholder="Taille, couleur…">
-            <label for="idee-lien">Lien</label>
-            <input id="idee-lien" type="url" placeholder="https://...">
+            <fieldset class="liens">
+                <legend>Liens</legend>
+                <div id="liens-conteneur"></div>
+                <button type="button" id="btn-ajout-lien" class="btn-lien-plus">+ Ajouter un lien</button>
+            </fieldset>
             <button class="btn btn-famille" type="submit">Ajouter</button>
             <p id="message" role="alert"></p>
         </form>
@@ -35,8 +38,11 @@
             <input id="surprise-titre" required maxlength="100">
             <label for="surprise-description">Description</label>
             <input id="surprise-description" maxlength="300">
-            <label for="surprise-lien">Lien</label>
-            <input id="surprise-lien" type="url" placeholder="https://...">
+            <fieldset class="liens">
+                <legend>Liens</legend>
+                <div id="liens-conteneur-surprise"></div>
+                <button type="button" id="btn-ajout-lien-surprise" class="btn-lien-plus">+ Ajouter un lien</button>
+            </fieldset>
             <button class="btn btn-famille" type="submit">Ajouter la surprise</button>
         </form>
 
