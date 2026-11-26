@@ -256,7 +256,7 @@ if (!role) {
   window.location.replace("index.html");
 } else {
   document.getElementById("titre").textContent =
-    role === "Createur" ? "Espace créateur" : `Bonjour ${libelle(role)}`;
+    role === "Createur" ? "Ma liste de cadeaux" : `Bonjour ${libelle(role)}`;
 
   // Aucune requête Firestore avant que la session Firebase soit validée
   onAuthStateChanged(auth, (user) => {
