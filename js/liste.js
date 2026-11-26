@@ -1,5 +1,5 @@
 import { lireRole, effacerRole } from "./session.js";
-import { libelle } from "./roles.js";
+import { libelle, EMAIL_FAMILLE } from "./roles.js";
 import { auth } from "./firebase-config.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-auth.js";
 import {
@@ -245,28 +245,44 @@ function demarrerFamille() {
 }
 
 // ---------- Démarrage ----------
+function refuser() {
+  effacerRole();
+  window.location.replace("index.html");
+}
+
+let demarre = false;
+
 if (!role) {
   window.location.replace("index.html");
 } else {
   document.getElementById("titre").textContent =
-    role === "Createur" ? "Ma liste" : `Bonjour ${libelle(role)}`;
+    role === "Createur" ? "Espace créateur" : `Bonjour ${libelle(role)}`;
 
+  // Aucune requête Firestore avant que la session Firebase soit validée
   onAuthStateChanged(auth, (user) => {
-    if (role === "Createur" && !user) {
-      effacerRole();
-      window.location.replace("index.html");
-    }
-  });
+    const familleConnectee = user?.email === EMAIL_FAMILLE;
 
-  if (role === "Createur") demarrerCreateur();
-  else demarrerFamille();
+    if (role === "Createur") {
+      if (!user || familleConnectee) return refuser();
+    } else if (!familleConnectee) {
+      return refuser();
+    }
+
+    if (demarre) return;
+    demarre = true;
+    if (role === "Createur") demarrerCreateur();
+    else demarrerFamille();
+  });
 }
 
 document.getElementById("btn-changer").addEventListener("click", async () => {
   effacerRole();
-  await Promise.race([
-    signOut(auth).catch(() => {}),
-    new Promise((resolve) => setTimeout(resolve, 1500)),
-  ]);
+  // Le Créateur est déconnecté ; la famille reste connectée (pas de code à retaper)
+  if (role === "Createur") {
+    await Promise.race([
+      signOut(auth).catch(() => {}),
+      new Promise((resolve) => setTimeout(resolve, 1500)),
+    ]);
+  }
   window.location.replace("index.html");
 });

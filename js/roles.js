@@ -1,3 +1,5 @@
+export const EMAIL_FAMILLE = "famille@cadeaux-liste.fr";
+
 export const LIBELLES = {
   "Maman": "Maman",
   "Papa": "Papa",
@@ -8,6 +10,5 @@ export const LIBELLES = {
 };
 
 export function libelle(role) {
-  // Si l'identifiant est inconnu, on retombe sur l'identifiant lui-même
   return LIBELLES[role] ?? role;
 }

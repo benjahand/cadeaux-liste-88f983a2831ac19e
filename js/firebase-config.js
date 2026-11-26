@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-app.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-firestore.js";
-import { initializeAuth, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-auth.js";
+import { initializeAuth, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyA4gj-2JbMShzoPtCECA52PQMhns2y__VY",
@@ -14,8 +14,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// sessionStorage au lieu d'IndexedDB : plus fiable sur Safari,
-// et la connexion disparaît à la fermeture de l'onglet.
-const auth = initializeAuth(app, { persistence: browserSessionPersistence });
+const auth = initializeAuth(app, {
+  persistence: [browserLocalPersistence, browserSessionPersistence],
+});
 
 export { db, auth };
