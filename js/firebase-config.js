@@ -13,6 +13,9 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+
+// Jamais IndexedDB (lent sur Safari) : la famille reste connectée (local),
+// le Créateur non (session).
 const auth = initializeAuth(app, {
   persistence: [browserLocalPersistence, browserSessionPersistence],
 });

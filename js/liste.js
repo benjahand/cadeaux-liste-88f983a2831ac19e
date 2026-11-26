@@ -47,7 +47,7 @@ function creerCarte(idee) {
   titre.title = idee.titre;
   li.append(titre);
 
-  // Ligne 2 : description
+  // Ligne 2 : description (grise)
   if (idee.description) {
     const desc = document.createElement("div");
     desc.className = "ligne-description";
@@ -56,7 +56,7 @@ function creerCarte(idee) {
     li.append(desc);
   }
 
-  // Ligne 3 : liens côte à côte
+  // Ligne 3 : liens côte à côte (rouges)
   const hrefs = liensDe(idee).map(lienSur).filter(Boolean);
   if (hrefs.length) {
     const ligneLiens = document.createElement("div");
@@ -97,6 +97,7 @@ function creerCarte(idee) {
       actions.append(creerBouton("Supprimer", "supprimer", idee.id, "btn-createur"));
     }
   } else {
+    // Créateur : jamais de statut de réservation
     actions.append(
       creerBouton("Modifier", "modifier", idee.id, "btn-famille"),
       creerBouton("Supprimer", "supprimer-idee", idee.id, "btn-createur")
@@ -231,11 +232,14 @@ function demarrerFamille() {
     }
   });
 
+  // CORRECTIF : cette ligne manquait dans ta version (ReferenceError)
+  const form = document.getElementById("form-surprise");
   const editeur = creerEditeurLiens(
     document.getElementById("liens-conteneur-surprise"),
     document.getElementById("btn-ajout-lien-surprise")
   );
   form.hidden = false;
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const bouton = form.querySelector("button[type=submit]");

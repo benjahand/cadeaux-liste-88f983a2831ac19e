@@ -62,7 +62,7 @@ formCode.addEventListener("submit", async (event) => {
   boutonCode.disabled = true;
   erreurCode.textContent = "";
   try {
-    await setPersistence(auth, browserLocalPersistence); // la famille reste connectée
+    await setPersistence(auth, browserLocalPersistence);
     await signInWithEmailAndPassword(auth, EMAIL_FAMILLE, champCode.value);
     enregistrerRole(profilChoisi);
     window.location.replace("liste.html");
@@ -82,7 +82,7 @@ form.addEventListener("submit", async (event) => {
   boutonEnvoi.textContent = "Connexion…";
   erreur.textContent = "";
   try {
-    await setPersistence(auth, browserSessionPersistence); // le Créateur disparaît à la fermeture
+    await setPersistence(auth, browserSessionPersistence);
     await signInWithEmailAndPassword(auth, email.value, mdp.value);
     enregistrerRole("Createur");
     window.location.replace("liste.html");

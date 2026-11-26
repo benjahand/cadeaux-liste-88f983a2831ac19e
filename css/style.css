@@ -2,6 +2,7 @@
 :root {
   --couleur-fond: #fdf6ec;
   --couleur-texte: #2b2b2b;
+  --couleur-gris: #6b6b6b;
   --couleur-principale: #b3202a;
   --couleur-secondaire: #1f6b45;
   --couleur-bordure: rgba(0, 0, 0, 0.15);
@@ -109,7 +110,7 @@ body {
 
 /* ---------- Profil sélectionné (accueil) ---------- */
 .btn-famille.selectionne {
-  background: #0b3a22; /* vert très foncé */
+  background: #0b3a22;
   box-shadow: 0 0 0 3px var(--couleur-fond), 0 0 0 6px #0b3a22;
 }
 
@@ -276,7 +277,7 @@ fieldset.liens legend {
 
 .ligne-description {
   font-size: 0.9rem;
-  opacity: 0.75;
+  color: var(--couleur-gris);
 }
 
 /* Liens : côte à côte, défilement horizontal si besoin */
@@ -288,12 +289,14 @@ fieldset.liens legend {
   overflow-x: auto;
 }
 
-.chip-lien {
+.chip-lien,
+.chip-lien:visited {
   flex: 0 0 auto;
   max-width: 160px;
   padding: 4px 10px;
   border: 1px solid var(--couleur-principale);
   border-radius: 999px;
+  background: #fff;
   color: var(--couleur-principale);
   font-size: 0.85rem;
   font-weight: 600;
